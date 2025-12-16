@@ -116,7 +116,7 @@ function App() {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
@@ -232,7 +232,7 @@ function App() {
             transition={{ type: "spring", stiffness: 300 }}
           >
             <motion.img
-              src="/images/me.png"
+              src={`${import.meta.env.PUBLIC_URL}/images/me.png`}
               alt="Thushakaran's Profile Picture"
               className="profile-pic"
               initial={{ scale: 0, rotate: -180 }}
