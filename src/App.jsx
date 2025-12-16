@@ -232,7 +232,7 @@ function App() {
             transition={{ type: "spring", stiffness: 300 }}
           >
             <motion.img
-              src={`${import.meta.env.PUBLIC_URL}/images/me.png`}
+              src={`https://github.com/Thushakaran/thushakaran.github.io/blob/master/public/images/me.png`}
               alt="Thushakaran's Profile Picture"
               className="profile-pic"
               initial={{ scale: 0, rotate: -180 }}
