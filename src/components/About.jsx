@@ -57,27 +57,30 @@ const About = () => {
         </p>
 
         <div className="bio-card">
-          <h2>Bio Data</h2>
-          <div className="bio-info">
+          <h2>Personal Information</h2>{" "}
+          {/* Changed from "Bio Data" – sounds more professional */}
+          <div className="bio-info-grid">
             {bioData.map((item, index) => {
               const Icon = item.icon;
               return (
                 <motion.div
                   key={index}
                   className="bio-item"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={inView ? { opacity: 1, x: 0 } : {}}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: index * 0.08 }}
                 >
-                  <Icon className="bio-icon" />
+                  <div className="bio-icon-wrapper">
+                    <Icon className="bio-icon" />
+                  </div>
                   <div className="bio-details">
-                    <strong>{item.label}:</strong>
+                    <span className="bio-label">{item.label}</span>
                     {item.isLink ? (
-                      <a href={item.href} className="bio-link">
+                      <a href={item.href} className="bio-value bio-link">
                         {item.value}
                       </a>
                     ) : (
-                      <span>{item.value}</span>
+                      <span className="bio-value">{item.value}</span>
                     )}
                   </div>
                 </motion.div>

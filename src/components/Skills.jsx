@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { FiCode, FiDatabase, FiTool } from "react-icons/fi";
+import { FiCode, FiDatabase, FiTool, FiLayers } from "react-icons/fi";
 
 const Skills = () => {
   const [ref, inView] = useInView({
@@ -25,6 +25,18 @@ const Skills = () => {
         "MySQL",
         "PHP",
         "MongoDB",
+      ],
+    },
+    {
+      icon: FiLayers,
+      title: "Enterprise & Workflow",
+      skills: [
+        "JobRouter",
+        "Workflow Automation",
+        "Business Process Management (BPM)",
+        "Form Design",
+        "JobRouter PHP",
+        "Database Integration",
       ],
     },
     {
