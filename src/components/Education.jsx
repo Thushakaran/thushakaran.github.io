@@ -62,9 +62,11 @@ const Education = () => {
                 >
                   <Icon />
                 </div>
-                <h3>{item.title}</h3>
-                <p className="institution">{item.institution}</p>
-                {item.details && <p className="details">{item.details}</p>}
+                <div className="education-content">
+                  <h3>{item.title}</h3>
+                  <p className="institution">{item.institution}</p>
+                  {item.details && <p className="details">{item.details}</p>}
+                </div>
               </motion.div>
             );
           })}

@@ -12,9 +12,11 @@ import {
   FiGithub,
   FiLinkedin,
   FiDownload,
+  FiBriefcase,
 } from "react-icons/fi";
 import Hero from "./components/Hero";
 import About from "./components/About";
+import Experience from "./components/Experience";
 import Skills from "./components/Skills";
 import Education from "./components/Education";
 import Projects from "./components/Projects";
@@ -56,6 +58,7 @@ function App() {
       const sections = [
         "home",
         "about",
+        "experience",
         "skills",
         "education",
         "projects",
@@ -81,6 +84,7 @@ function App() {
   const navItems = [
     { id: "home", label: "Home", icon: FiHome },
     { id: "about", label: "About", icon: FiUser },
+    { id: "experience", label: "Experience", icon: FiBriefcase },
     { id: "skills", label: "Skills", icon: FiCode },
     { id: "education", label: "Education", icon: FiBookOpen },
     { id: "projects", label: "Projects", icon: FiFolder },
@@ -342,12 +346,15 @@ function App() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3, duration: 0.8 }}
       >
-        <Hero />
-        <About />
-        <Education />
-        <Skills />
-        <Projects />
-        <Contact />
+        <div className="main-content-wrapper">
+          <Hero />
+          <About />
+          <Experience />
+          <Skills />
+          <Education />
+          <Projects />
+          <Contact />
+        </div>
       </motion.main>
 
       {/* Mobile Menu Overlay */}

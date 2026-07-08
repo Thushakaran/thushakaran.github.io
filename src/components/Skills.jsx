@@ -12,7 +12,7 @@ const Skills = () => {
     {
       icon: FiCode,
       title: "Frontend",
-      skills: ["HTML", "CSS", "JavaScript", "React", "Bootstrap"],
+      skills: ["HTML", "CSS", "JavaScript", "React", "Bootstrap", "Tailwind", "Redux"],
     },
     {
       icon: FiDatabase,
@@ -69,10 +69,12 @@ const Skills = () => {
                 whileHover={{ y: -10, scale: 1.02 }}
                 style={{ perspective: 1000 }}
               >
-                <div className="skill-icon">
-                  <Icon />
+                <div className="skill-header">
+                  <div className="skill-icon">
+                    <Icon />
+                  </div>
+                  <h3>{category.title}</h3>
                 </div>
-                <h3>{category.title}</h3>
                 <div className="skill-tags">
                   {category.skills.map((skill, skillIndex) => (
                     <motion.span

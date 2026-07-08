@@ -56,9 +56,8 @@ const About = () => {
           applications.
         </p>
 
-        <div className="bio-card">
-          <h2>Personal Information</h2>{" "}
-          {/* Changed from "Bio Data" – sounds more professional */}
+        <div className="bio-container">
+          <h2 className="section-subtitle">Personal Information</h2>
           <div className="bio-info-grid">
             {bioData.map((item, index) => {
               const Icon = item.icon;
