@@ -13,7 +13,7 @@ const Education = () => {
       icon: FiBookOpen,
       title: "B.Sc. (Hons) in Software Engineering",
       institution: "University of Kelaniya",
-      details: "Current GPA: 3.38",
+      details: "Current GPA: 3.2938",
       gradient: "linear-gradient(135deg, #b16cea, #ff5e69)",
     },
     {
@@ -53,7 +53,8 @@ const Education = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
-                whileHover={{ y: -5 }}
+                whileHover={{ y: -10, scale: 1.02 }}
+                style={{ perspective: 1000 }}
               >
                 <div
                   className="education-icon"

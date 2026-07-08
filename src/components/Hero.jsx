@@ -293,7 +293,7 @@ const Hero = () => {
             transition={{ type: "spring", stiffness: 300 }}
           >
             <motion.img
-              src="/images/me.png"
+              src="/images/me_2.png"
               alt="Thushakaran's Profile"
               className="hero-profile"
               initial={{ rotate: -180, scale: 0 }}

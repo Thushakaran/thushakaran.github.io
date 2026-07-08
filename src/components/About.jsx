@@ -27,7 +27,7 @@ const About = () => {
     {
       icon: FiBookOpen,
       label: "Degree",
-      value: "B.Sc (Hons) in Software Engineering",
+      value: "B.Sc (Hons) in Software Engineering(Reading)",
     },
     {
       icon: FiMail,
