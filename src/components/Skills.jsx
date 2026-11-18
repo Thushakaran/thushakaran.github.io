@@ -2,93 +2,94 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { FiCode, FiDatabase, FiTool, FiLayers } from "react-icons/fi";
 
+const SKILLS_DATA = [
+  {
+    icon: FiCode,
+    title: "Frontend",
+    skills: [
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "React",
+      "Redux",
+      "Tailwind CSS",
+      "Bootstrap",
+    ],
+  },
+  {
+    icon: FiDatabase,
+    title: "Backend & Databases",
+    skills: [
+      "Java",
+      "Spring Boot",
+      "Node.js",
+      "Express",
+      "PHP",
+      "MySQL",
+      "MongoDB",
+    ],
+  },
+  {
+    icon: FiLayers,
+    title: "Enterprise & Workflow",
+    skills: [
+      "JobRouter",
+      "Workflow Automation",
+      "Business Process Management (BPM)",
+      "Form Design",
+      "JobRouter PHP",
+      "Database Integration",
+    ],
+  },
+  {
+    icon: FiTool,
+    title: "Tools & IDEs",
+    skills: ["Git & GitHub", "Postman", "IntelliJ IDEA", "VS Code"],
+  },
+];
+
 const Skills = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const skillsData = [
-    {
-      icon: FiCode,
-      title: "Frontend",
-      skills: ["HTML", "CSS", "JavaScript", "React", "Bootstrap", "Tailwind", "Redux"],
-    },
-    {
-      icon: FiDatabase,
-      title: "Backend",
-      skills: [
-        "Java",
-        "Spring Boot",
-        "Node.js",
-        "Express",
-        "MySQL",
-        "PHP",
-        "MongoDB",
-      ],
-    },
-    {
-      icon: FiLayers,
-      title: "Enterprise & Workflow",
-      skills: [
-        "JobRouter",
-        "Workflow Automation",
-        "Business Process Management (BPM)",
-        "Form Design",
-        "JobRouter PHP",
-        "Database Integration",
-      ],
-    },
-    {
-      icon: FiTool,
-      title: "Tools & IDEs",
-      skills: ["GitHub", "Postman", "IntelliJ", "VS Code"],
-    },
-  ];
-
   return (
     <section id="skills" className="section">
       <motion.div
         ref={ref}
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 32 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="section-content"
       >
         <h1>Technical Skills</h1>
+        <p className="section-description">
+          Core technologies, backend frameworks, and enterprise automation tools
+          I use to build scalable software.
+        </p>
         <div className="skills-grid">
-          {skillsData.map((category, index) => {
+          {SKILLS_DATA.map((category, index) => {
             const Icon = category.icon;
             return (
               <motion.div
-                key={index}
+                key={category.title}
                 className="skill-card"
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                whileHover={{ y: -10, scale: 1.02 }}
-                style={{ perspective: 1000 }}
+                transition={{ duration: 0.45, delay: index * 0.08 }}
               >
                 <div className="skill-header">
                   <div className="skill-icon">
-                    <Icon />
+                    <Icon aria-hidden="true" />
                   </div>
                   <h3>{category.title}</h3>
                 </div>
                 <div className="skill-tags">
-                  {category.skills.map((skill, skillIndex) => (
-                    <motion.span
-                      key={skillIndex}
-                      className="skill-tag"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={inView ? { opacity: 1, scale: 1 } : {}}
-                      transition={{
-                        duration: 0.3,
-                        delay: index * 0.2 + skillIndex * 0.1,
-                      }}
-                    >
+                  {category.skills.map((skill) => (
+                    <span key={skill} className="skill-tag">
                       {skill}
-                    </motion.span>
+                    </span>
                   ))}
                 </div>
               </motion.div>

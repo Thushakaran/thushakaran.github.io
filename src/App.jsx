@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   FiMenu,
@@ -13,6 +13,8 @@ import {
   FiLinkedin,
   FiDownload,
   FiBriefcase,
+  FiSun,
+  FiMoon,
 } from "react-icons/fi";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -23,73 +25,139 @@ import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import "./App.css";
 
+const NAV_ITEMS = [
+  { id: "home", label: "Home", icon: FiHome },
+  { id: "about", label: "About", icon: FiUser },
+  { id: "experience", label: "Experience", icon: FiBriefcase },
+  { id: "skills", label: "Skills", icon: FiCode },
+  { id: "education", label: "Education", icon: FiBookOpen },
+  { id: "projects", label: "Projects", icon: FiFolder },
+  { id: "contact", label: "Contact", icon: FiMail },
+];
+
+const SECTIONS = NAV_ITEMS.map((item) => item.id);
+
+const getInitialTheme = () => {
+  if (typeof window === "undefined") return "light";
+  const saved = window.localStorage.getItem("portfolio-theme");
+  if (saved === "light" || saved === "dark") return saved;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("home");
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 1024 : false
+  );
+  const [theme, setTheme] = useState(getInitialTheme);
+  const [avatarError, setAvatarError] = useState(false);
 
-  // Handle body scroll when sidebar is open
+  const sidebarRef = useRef(null);
+  const menuBtnRef = useRef(null);
+  const isMenuOpenRef = useRef(isMobileMenuOpen);
+
+  useEffect(() => {
+    isMenuOpenRef.current = isMobileMenuOpen;
+  }, [isMobileMenuOpen]);
+
+  // Apply theme attribute and persist preference
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    window.localStorage.setItem("portfolio-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
+  // Handle body scroll when sidebar is open on mobile
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.classList.add("sidebar-open");
     } else {
       document.body.classList.remove("sidebar-open");
     }
-
     return () => {
       document.body.classList.remove("sidebar-open");
     };
   }, [isMobileMenuOpen]);
 
+  // Track scroll progress and active section
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset;
-      const docHeight = document.body.offsetHeight - window.innerHeight;
-      const scrollPercent = (scrollTop / docHeight) * 100;
-      setScrollProgress(scrollPercent);
+    let ticking = false;
 
-      // Close mobile menu when scrolling
-      if (isMobileMenuOpen) {
+    const updateOnScroll = () => {
+      const scrollTop = window.scrollY || window.pageYOffset;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const percent =
+        docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
+      setScrollProgress(percent);
+
+      if (isMenuOpenRef.current) {
         setIsMobileMenuOpen(false);
       }
 
-      // Update active section based on scroll position
-      const sections = [
-        "home",
-        "about",
-        "experience",
-        "skills",
-        "education",
-        "projects",
-        "contact",
-      ];
-      const currentSection = sections.find((section) => {
+      const currentSection = SECTIONS.find((section) => {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
+          return rect.top <= 140 && rect.bottom >= 140;
         }
         return false;
       });
       if (currentSection) {
         setActiveSection(currentSection);
       }
+
+      ticking = false;
     };
 
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateOnScroll);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close sidebar when clicking outside
+  useEffect(() => {
+    if (!isMobileMenuOpen) return undefined;
+
+    const handleOutsideClick = (e) => {
+      const clickedSidebar = sidebarRef.current?.contains(e.target);
+      const clickedBtn = menuBtnRef.current?.contains(e.target);
+      if (!clickedSidebar && !clickedBtn) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
   }, [isMobileMenuOpen]);
 
-  const navItems = [
-    { id: "home", label: "Home", icon: FiHome },
-    { id: "about", label: "About", icon: FiUser },
-    { id: "experience", label: "Experience", icon: FiBriefcase },
-    { id: "skills", label: "Skills", icon: FiCode },
-    { id: "education", label: "Education", icon: FiBookOpen },
-    { id: "projects", label: "Projects", icon: FiFolder },
-    { id: "contact", label: "Contact", icon: FiMail },
-  ];
+  // Check screen size
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -99,253 +167,130 @@ function App() {
     setIsMobileMenuOpen(false);
   };
 
-  // Close sidebar when clicking outside
-  const handleOutsideClick = (e) => {
-    if (isMobileMenuOpen && !e.target.closest('.sidebar') && !e.target.closest('.mobile-menu-btn')) {
-      setIsMobileMenuOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.addEventListener('click', handleOutsideClick);
-    }
-    return () => {
-      document.removeEventListener('click', handleOutsideClick);
-    };
-  }, [isMobileMenuOpen]);
-
-  // Check screen size
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
-
-  // Floating particles animation
-  const particles = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 4 + 1,
-    duration: Math.random() * 20 + 10,
-  }));
-
   return (
     <div className="app">
-      {/* Animated Background */}
-      <div className="animated-bg"></div>
-
-      {/* Floating Particles */}
-      <div className="floating-particles">
-        {particles.map((particle) => (
-          <motion.div
-            key={particle.id}
-            className="particle"
-            style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.3, 0.8, 0.3],
-            }}
-            transition={{
-              duration: particle.duration,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
+      {/* Subtle Ambient Background */}
+      <div className="animated-bg" aria-hidden="true" />
 
       {/* Mobile Menu Button */}
-      <motion.button
+      <button
+        ref={menuBtnRef}
+        type="button"
         className="mobile-menu-btn"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        whileHover={{ scale: 1.1, rotate: 5 }}
-        whileTap={{ scale: 0.9 }}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+        aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+        aria-expanded={isMobileMenuOpen}
       >
-        <AnimatePresence mode="wait">
-          {isMobileMenuOpen ? (
-            <motion.div
-              key="close"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <FiX />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="menu"
-              initial={{ rotate: 90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: -90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <FiMenu />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.button>
+        {isMobileMenuOpen ? <FiX /> : <FiMenu />}
+      </button>
 
       {/* Scroll Progress Indicator */}
-      <motion.div
-        className="scroll-indicator"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ delay: 0.8, duration: 0.5 }}
-      >
-        <motion.div
+      <div className="scroll-indicator" aria-hidden="true">
+        <div
           className="scroll-progress"
           style={{ width: `${scrollProgress}%` }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.3 }}
         />
-      </motion.div>
+      </div>
 
       {/* Sidebar */}
       <motion.aside
+        ref={sidebarRef}
         className={`sidebar ${isMobileMenuOpen ? "sidebar-open" : ""}`}
-        initial={{ x: isMobile ? -280 : 0 }}
+        initial={false}
         animate={{ x: isMobile ? (isMobileMenuOpen ? 0 : -280) : 0 }}
-        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        transition={{ type: "spring", stiffness: 260, damping: 28 }}
+        aria-label="Primary navigation"
       >
-        <motion.div
-          className="profile-section"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <motion.div
-            className="profile-pic-container"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <motion.img
-              src="/images/me.png"
-              alt="Thushakaran's Profile Picture"
-              className="profile-pic"
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-              onError={(e) => {
-                e.target.src =
-                  "https://via.placeholder.com/150x150/667eea/ffffff?text=TB";
-              }}
-            />
-            <motion.div
-              className="profile-ring"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-            />
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+        <div className="profile-section">
+          <div className="profile-pic-container">
+            {avatarError ? (
+              <div className="profile-pic profile-pic-fallback" aria-label="Balasubramaniyam Thushakaran">
+                BT
+              </div>
+            ) : (
+              <img
+                src="/images/me.png"
+                alt="Balasubramaniyam Thushakaran"
+                className="profile-pic"
+                referrerPolicy="no-referrer"
+                onError={() => setAvatarError(true)}
+              />
+            )}
+          </div>
+          <h2>
             Balasubramaniyam
             <br />
             Thushakaran
-          </motion.h2>
-        </motion.div>
+          </h2>
+          <p className="profile-role">Software Engineer</p>
+        </div>
 
         <nav className="main-nav">
           <ul className="nav-list">
-            {navItems.map((item, index) => {
+            {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
-                <motion.li
-                  key={item.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 * index + 0.5 }}
-                >
-                  <motion.button
+                <li key={item.id}>
+                  <button
+                    type="button"
                     className={`nav-link ${
                       activeSection === item.id ? "active" : ""
                     }`}
                     onClick={() => scrollToSection(item.id)}
-                    whileHover={{
-                      scale: 1.05,
-                      x: 5,
-                      transition: { type: "spring", stiffness: 300 },
-                    }}
-                    whileTap={{ scale: 0.95 }}
                   >
-                    <motion.div
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <Icon />
-                    </motion.div>
+                    <Icon aria-hidden="true" />
                     <span>{item.label}</span>
-                  </motion.button>
-                </motion.li>
+                  </button>
+                </li>
               );
             })}
           </ul>
         </nav>
 
-        <motion.div
-          className="social-links"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <motion.a
-            href="https://github.com/Thushakaran"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{
-              scale: 1.2,
-              rotate: 5,
-              boxShadow: "0 10px 20px rgba(102, 126, 234, 0.3)",
-            }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 300 }}
+        <div className="sidebar-footer">
+          <button
+            type="button"
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
           >
-            <FiGithub />
-          </motion.a>
-          <motion.a
-            href="https://www.linkedin.com/in/thushakaran/"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{
-              scale: 1.2,
-              rotate: -5,
-              boxShadow: "0 10px 20px rgba(102, 126, 234, 0.3)",
-            }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <FiLinkedin />
-          </motion.a>
-        </motion.div>
+            {theme === "dark" ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}
+            <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+          </button>
+
+          <div className="social-links">
+            <a
+              href="https://github.com/Thushakaran"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub profile"
+              title="GitHub"
+            >
+              <FiGithub />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/thushakaran/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn profile"
+              title="LinkedIn"
+            >
+              <FiLinkedin />
+            </a>
+            <a
+              href="/resume.pdf"
+              download
+              aria-label="Download resume PDF"
+              title="Download Resume"
+            >
+              <FiDownload />
+            </a>
+          </div>
+        </div>
       </motion.aside>
 
       {/* Main Content */}
-      <motion.main
-        className="main-content"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3, duration: 0.8 }}
-      >
+      <main className="main-content">
         <div className="main-content-wrapper">
           <Hero />
           <About />
@@ -355,7 +300,34 @@ function App() {
           <Projects />
           <Contact />
         </div>
-      </motion.main>
+
+        <footer className="site-footer">
+          <p className="footer-copy">
+            © {new Date().getFullYear()} Balasubramaniyam Thushakaran. All rights reserved.
+          </p>
+          <div className="footer-links">
+            <a
+              href="https://github.com/Thushakaran"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            <span aria-hidden="true">·</span>
+            <a
+              href="https://www.linkedin.com/in/thushakaran/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LinkedIn
+            </a>
+            <span aria-hidden="true">·</span>
+            <a href="/resume.pdf" download>
+              Resume
+            </a>
+          </div>
+        </footer>
+      </main>
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
@@ -366,7 +338,7 @@ function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
           />
         )}
       </AnimatePresence>
