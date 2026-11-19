@@ -197,9 +197,10 @@ function App() {
         ref={sidebarRef}
         className={`sidebar ${isMobileMenuOpen ? "sidebar-open" : ""}`}
         initial={false}
-        animate={{ x: isMobile ? (isMobileMenuOpen ? 0 : -280) : 0 }}
+        animate={{ x: isMobile ? (isMobileMenuOpen ? 0 : "-100%") : 0 }}
         transition={{ type: "spring", stiffness: 260, damping: 28 }}
         aria-label="Primary navigation"
+        aria-hidden={isMobile && !isMobileMenuOpen}
       >
         <div className="profile-section">
           <div className="profile-pic-container">
